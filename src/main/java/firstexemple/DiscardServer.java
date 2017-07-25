@@ -30,7 +30,7 @@ public class DiscardServer {
         try {
             //bootstrap是一个辅助类，帮我们建立server
             ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(boss)
+            serverBootstrap.group(boss, worker)
                     //NioServerSocketChannel暂时只接触到这个，它会实例化一个Channel来接收到来的连接
                     .channel(NioServerSocketChannel.class)
                     //添加handler用来处理网络消息
@@ -46,10 +46,14 @@ public class DiscardServer {
                     //childOption是server接受客户端连接后，注册到worker的channel
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
+            //ChannelFuture.channel()返回上文指定的NioServerSocketChannel，closeFuture()方法返回CloseFuture
+            //sync()方法阻塞将会阻塞主线程
+            //上面的sync和下面的sync不是一回事，暂时看源码不能太完全消化，后续继续添加
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            //在一定时间内没有接受到新的请求就关闭连接,默认是2s,如果期间有新的请求过来，会重新计算
             boss.shutdownGracefully();
             worker.shutdownGracefully();
         }
