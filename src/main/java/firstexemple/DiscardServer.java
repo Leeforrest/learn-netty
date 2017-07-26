@@ -8,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import timeclient.TimeServerHandler;
 
 /**
  * author : Forrest
@@ -38,6 +39,12 @@ public class DiscardServer {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline().addLast(new DiscardServerHandler());
+                            /**当我把{@link TimeServerHandler} (在建立连接时直接返回给客户端时间然后断开连接）加入后，
+                            启动 {@link DiscardServer}, 在启动{@link timeclient.TimeClient}
+                            与server建立连接瞬间，连接就被关闭了，似乎并没有考虑DiscardServerHandler的感受
+                             */
+//                                    .addLast(new TimeServerHandler());
+
                         }
                     })
                     //设置Channel参数
