@@ -27,7 +27,8 @@ public class TimeClient {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new TimeClientHandler());
+//                            socketChannel.pipeline().addLast(new TimeClientHandler());//未使用粘包的handler
+                            socketChannel.pipeline().addLast(new TimeClientHandlerDefragSolution1());//使用粘包解决方案1
                         }
                     });
             ChannelFuture future = b.connect(host, port).sync();

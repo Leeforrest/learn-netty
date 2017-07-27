@@ -11,14 +11,15 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import timeclient.TimeServerHandler;
 
 /**
+ * 这里是直接从DiscardServer拷贝过来的
  * author : Forrest
  * date : 2017/7/13.
  */
-public class DiscardServer {
+public class TimeServer {
 
     private int port;
 
-    public DiscardServer(int port) {
+    public TimeServer(int port) {
         this.port = port;
     }
 
@@ -34,26 +35,26 @@ public class DiscardServer {
             serverBootstrap.group(boss, worker)
                     //NioServerSocketChannel暂时只接触到这个，它会实例化一个Channel来接收到来的连接
                     .channel(NioServerSocketChannel.class)
-                    //添加handler用来处理网络消息
+                            //添加handler用来处理网络消息
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             //debug了一下，个人理解这里添加的handler，将会在bossgroup accept客户端连接并注册给workergroup时
                             // 会创建SocketChannel实例，接着真正调用addLast方法将handler交给SocketChannel，也就是说每个客户端与服务端的连接
                             // 将会对应一个channel，而handler附属于channel
-                            socketChannel.pipeline().addLast(new DiscardServerHandler());
+                            socketChannel.pipeline().addLast(new TimeServerHandler());
                             /**当我把{@link TimeServerHandler} (在建立连接时直接返回给客户端时间然后断开连接）加入后，
-                            启动 {@link DiscardServer}, 在启动{@link timeclient.TimeClient}
-                            与server建立连接瞬间，连接就被关闭了，似乎并没有考虑DiscardServerHandler的感受
+                             启动 {@link TimeServer}, 在启动{@link timeclient.TimeClient}
+                             与server建立连接瞬间，连接就被关闭了，似乎并没有考虑TimeServerHandler的感受
                              */
 //                                    .addLast(new TimeServerHandler());
 
                         }
                     })
-                    //设置Channel参数
-                    //option是针对接受客户端连接的channel,
-                                    .option(ChannelOption.SO_BACKLOG, 128)
-                    //childOption是server接受客户端连接后，注册到worker的channel
+                            //设置Channel参数
+                            //option是针对接受客户端连接的channel,
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                            //childOption是server接受客户端连接后，注册到worker的channel
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
             //ChannelFuture.channel()返回上文指定的NioServerSocketChannel，closeFuture()方法返回CloseFuture
@@ -77,7 +78,7 @@ public class DiscardServer {
         } else {
             port = 8080;
         }
-        new DiscardServer(port).run();
+        new TimeServer(port).run();
 
     }
 }

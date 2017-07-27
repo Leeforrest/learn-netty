@@ -24,7 +24,7 @@ public class TimeServerHandler extends ChannelHandlerAdapter {
             public void operationComplete(ChannelFuture future) {
                 assert f == future;
                 ctx.close();
-            }
+             }
         }); // (4)
     }
 
